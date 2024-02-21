@@ -7,17 +7,23 @@ game.InitialiseGame();
 
 public class GameManager()
 {
-    private Board _board = new();
+    private const int BOARD_SIDE_LENGTH = 3;
+    
+    private Board _board = new(BOARD_SIDE_LENGTH);
     private Player _playerOne;
     private Player _playerTwo;
+
+    private Player[] _players = new Player[2];
+    private int _numberOfMoves = 0;
     
     public void InitialiseGame()
     {
-        Console.Write("Player 1 Name: ");
-        _playerOne = new Player(Console.ReadLine(), XO.X);
-        Console.Write("Player 2 Name: ");
-        _playerTwo = new Player(Console.ReadLine(), XO.O);
-
+        for (int i = 0; i < _players.Length; i++)
+        {
+            Console.Write($"Player {i} Name: ");
+            _players[i] = new Player(Console.ReadLine(), Enum.GetValues<XO>()[i]);
+        }
+        
         RunGame();
     }
 
@@ -26,36 +32,34 @@ public class GameManager()
         _board.Render();
         while(true)
         {
-            bool moveIsValid = false; 
-            while(!moveIsValid)
+            
+            
+            for (int i = 0; i < _players.Length; i++)
             {
-                var p1Move = _playerOne.GetMove();
-                moveIsValid = _board.ProcessMove(p1Move.Item1, p1Move.Item2, _playerOne.Xo);
+                bool moveIsValid = false; 
+                while(!moveIsValid)
+                {
+                    var move = _players[i].GetMove();
+                    moveIsValid = _board.ProcessMove(move.Item1, move.Item2, _players[i].Xo);
+                }
+                _board.Render();
+                _numberOfMoves++;
+                IsFinished(_players[i].Name);
             }
-            _board.Render();
-            IsFinished();
-           
-            bool moveIsValidP2 = false;
-            while (!moveIsValidP2)
-            {
-                var p2Move = _playerTwo.GetMove();
-                moveIsValidP2 = _board.ProcessMove(p2Move.Item1, p2Move.Item2, _playerTwo.Xo);
-            }
-            _board.Render();
-            IsFinished();
+            
+            
         }
     }
-
-    private void IsFinished()
+    private void IsFinished(string currentPlayerName)
     {
         var isWinner = _board.CheckForWinner();
-        if(isWinner is not null)
+        if(isWinner)
         {
-            Console.WriteLine($"{isWinner.ToString()} wins");
+            Console.WriteLine($"{currentPlayerName} wins");
             Environment.Exit(0);
         }
 
-        if (_board.IsDraw())
+        if(_numberOfMoves == BOARD_SIDE_LENGTH * BOARD_SIDE_LENGTH)
         {
             Console.WriteLine("Draw");
             Environment.Exit(0);
@@ -63,9 +67,9 @@ public class GameManager()
     }
 }
 
-public class Board()
+public class Board(int boardSize)
 {
-    private XO?[,] _spaces = new XO?[3,3];
+    private XO?[,] _spaces = new XO?[boardSize,boardSize];
     
     public void Render()
     {
@@ -104,35 +108,15 @@ public class Board()
         return _spaces[x, y] == null;
     }
 
-    public XO? CheckForWinner()
+    public bool CheckForWinner()
     {
         var horizontals = CheckHorizontals();
         var verticals = CheckVerticals();
 
-        if (horizontals is not null)
-            return horizontals;
-
-        if (verticals is not null)
-            return verticals;
-
-        return null;
+        return horizontals || verticals;
     }
-
-    public bool IsDraw()
-    {
-        for(int y = 0; y < _spaces.GetLength(0); y++)
-        {
-            for (int x = 0; x < _spaces.GetLength(1); x++)
-            {
-                if (_spaces[y, x] == null)
-                    return false;
-            }
-        }
-
-        return true;
-    }
-
-    private XO? CheckHorizontals()
+    
+    private bool CheckHorizontals()
     {
         for(int y = 0; y < _spaces.GetLength(0); y++)
         {
@@ -147,15 +131,13 @@ public class Board()
                     os++;
             }
 
-            if (xs == 3)
-                return XO.X;
-            if (os == 3)
-                return XO.O;
+            if (xs == 3 || os == 3)
+                return true;
         }
-        return null;
+        return false;
     }
     
-    private XO? CheckVerticals()
+    private bool CheckVerticals()
     {
         for(int x = 0; x < _spaces.GetLength(1); x++)
         {
@@ -170,15 +152,13 @@ public class Board()
                 if (_spaces[y, x] == XO.O)
                     os++;
             }
-            
-            if (xs == 3)
-                return XO.X;
-            if (os == 3)
-                return XO.O;
+
+            if (xs == 3 || os == 3)
+                return true;
 
         }
 
-        return null;
+        return false;
     }
 }
 
