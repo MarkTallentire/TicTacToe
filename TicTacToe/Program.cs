@@ -17,7 +17,7 @@ public class GameManager
     {
         for (int i = 0; i < _players.Length; i++)
         {
-            Console.Write($"Player {i} Name: ");
+            Console.Write($"Player {i + 1} Name: ");
             _players[i] = new Player(Console.ReadLine(), Enum.GetValues<Xo>()[i]);
         }
         
