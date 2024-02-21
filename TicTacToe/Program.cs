@@ -1,8 +1,4 @@
-﻿//Draw the board
-//Ask the players for a choice
-//Check if anyone has won (3 in a row) > Complete Game > Next Round
-
-var gameManager = new GameManager();
+﻿var gameManager = new GameManager();
 
 public class GameManager
 {
@@ -122,7 +118,7 @@ public class Board(int boardSize)
                     os++;
             }
 
-            if (xs == 3 || os == 3)
+            if (xs == boardSize || os == boardSize)
                 return true;
         }
         return false;
@@ -141,7 +137,7 @@ public class Board(int boardSize)
                     os++;
             }
 
-            return xs == 3 || os == 3;
+            return xs == boardSize || os == boardSize;
     }
     
     private bool CheckDiagonalsUp()
@@ -157,7 +153,7 @@ public class Board(int boardSize)
                 os++;
         }
 
-        return xs == 3 || os == 3;
+        return xs == boardSize || os == boardSize;
     }
     
     private bool CheckVerticals()
@@ -176,7 +172,7 @@ public class Board(int boardSize)
                     os++;
             }
 
-            if (xs == 3 || os == 3)
+            if (xs == boardSize || os == boardSize)
                 return true;
 
         }
